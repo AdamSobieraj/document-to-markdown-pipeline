@@ -3,7 +3,7 @@ import os
 from typing import Generator
 
 from interfaces.DataLoader import BaseDataLoader
-from config_loader import get_settings
+from LoadConfig import get_settings
 
 logger = logging.getLogger(__name__)
 

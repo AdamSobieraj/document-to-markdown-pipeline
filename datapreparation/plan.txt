@@ -59,3 +59,9 @@ PYTHON-Agent-DataConvert
 
 PYTHON-Agent-RAG-DataBuild
 - zawirera tworzenie embedingów, bazy danych, grafy
+
+
+test path
+docker build -t registry.home.arpa/executeit/python-agent-mcp:latest .
+
+docker run registry.home.arpa/executeit/python-agent-mcp
