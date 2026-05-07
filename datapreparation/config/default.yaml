@@ -1,0 +1,23 @@
+# ==============================================================================
+# KONFIGURACJA GŁÓWNA APLIKACJI
+# ==============================================================================
+
+# ==============================================================================
+# 1 ŹRÓDŁA DANYCH (S3 / LOCAL)
+# ==============================================================================
+
+# Core Arguments
+source-type: s3
+dest-type: s3
+
+#S3 Arguments
+bucket: mojsuperbucket
+prefix: "business/"
+out-bucket: mojsuperbucket
+
+# Local Arguments
+dir: "/home/blackmain/PycharmProjects/PYTHON-Agent-MCP/buissnes_agent/inputs"
+out-dir: "/home/blackmain/PycharmProjects/PYTHON-Agent-MCP/buissnes_agent/outputs_md"
+
+# Logging Argument
+debug: false
