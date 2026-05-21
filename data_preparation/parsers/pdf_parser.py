@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 import time
+import json
 from typing import Dict, List, Optional, Tuple, Union
 
 from dotenv import load_dotenv
@@ -49,6 +50,7 @@ class PdfParser(BaseDocumentParser):
         base_url: Optional[str] = None,
         model: Optional[str] = None,
         api_key: Optional[str] = None,
+        custom_headers: Optional[Dict[str, str]] = None,
     ):
         if not FITZ_AVAILABLE or not OPENAI_AVAILABLE:
             raise ImportError("Zainstaluj wymagania: pip install pymupdf openai")
@@ -82,11 +84,28 @@ class PdfParser(BaseDocumentParser):
                 "PdfParser: brak jawnego API key; uzywam placeholdera dla %s.",
                 self.base_url,
             )
+
+        # ────────────────────────────────────────────────────────
+        # DODANE: Odczyt custom headers z ENV przez DEFAULT_HEADERS
+        # ────────────────────────────────────────────────────────
+        self.custom_headers = custom_headers or {}
+
+        default_headers_json = os.getenv("DEFAULT_HEADERS")
+        if default_headers_json:
+            try:
+                parsed_headers = json.loads(default_headers_json)
+                self.custom_headers.update(parsed_headers)
+                logger.info("Dodano custom headers z DEFAULT_HEADERS: %s", list(parsed_headers.keys()))
+            except json.JSONDecodeError as e:
+                logger.warning("Nie można sparsować DEFAULT_HEADERS z ENV: %s", e)
+        # ────────────────────────────────────────────────────────
+
         # Timeout na 10 minut, żeby połączenie nie zerwało się przy trudnych stronach
         self.client = OpenAI(
             base_url=self.base_url,
             api_key=self.api_key,
             timeout=600.0,
+            default_headers=self.custom_headers if self.custom_headers else None,
         )
         # ── Marginesy ────────────────────────────────────────────
         self._top_margin = top_margin_crop
@@ -98,9 +117,10 @@ class PdfParser(BaseDocumentParser):
         )
 
         logger.info(
-            "Vision parser zainicjalizowany (URL: %s, Model: %s).",
+            "Vision parser zainicjalizowany (URL: %s, Model: %s, Headers: %s).",
             self.base_url,
             self.model_name,
+            list(self.custom_headers.keys()) if self.custom_headers else "brak",
         )
 
         self.system_prompt = (
@@ -207,6 +227,7 @@ class PdfParser(BaseDocumentParser):
             "base_url": self.base_url,
             "dpi_scale": str(self.dpi_scale),
             "margins_enabled": str(self._margins_enabled),
+            "custom_headers": str(list(self.custom_headers.keys())) if self.custom_headers else "brak",
         }
     # ══════════════════════════════════════════════════════════════
     # WARSTWA 1: Wczytywanie i PRE-CROP (PyMuPDF cropbox)

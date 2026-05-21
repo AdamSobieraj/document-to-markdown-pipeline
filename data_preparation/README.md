@@ -1,6 +1,6 @@
 
 
-### 2. How to run from the CLI
+### 1. How to run from the CLI
 
 Here are examples of how to run different scenarios:
 

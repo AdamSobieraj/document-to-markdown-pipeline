@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  # --- LOKALNE S3 (MINIO) ---
+  minio:
+    image: minio/minio:latest
+    container_name: local_s3
+    ports:
+      - "9000:9000"  # API S3 (dla Twojego skryptu Python: S3_ENDPOINT)
+      - "9001:9001"  # Konsola administratora (przeglądarka)
+    environment:
+      MINIO_ROOT_USER: minioadmin      # Odpowiednik: S3_AKID
+      MINIO_ROOT_PASSWORD: minioadmin  # Odpowiednik: S3_SK
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  minio_data:
+    driver: local
