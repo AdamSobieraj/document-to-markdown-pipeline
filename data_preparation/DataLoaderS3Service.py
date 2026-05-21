@@ -232,6 +232,7 @@ class DataLoaderS3Service:
                 'Bucket': bucket_name,
                 'Key': key,
                 'Body': data,
+                'ContentLength': len(data),
             }
             if content_type:
                 put_kwargs['ContentType'] = content_type
