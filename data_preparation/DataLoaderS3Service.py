@@ -2,6 +2,7 @@ import logging
 import os
 from dataclasses import dataclass
 from typing import Generator
+from botocore.config import Config
 
 import boto3
 from dotenv import load_dotenv
@@ -32,23 +33,25 @@ class DataLoaderS3Service:
         if not self.aws_key or not self.aws_secret:
             raise RuntimeError("Missing AWS credentials in .env file")
 
+        modern_config = Config(
+            request_checksum_calculation='when_required',
+            response_checksum_validation='when_required',
+            s3={'allow_chunked_encoding': False}
+        )
+
         self.session = boto3.Session(
             aws_access_key_id=self.aws_key,
             aws_secret_access_key=self.aws_secret,
             region_name=self.aws_region,
         )
 
-        client_kwargs: dict[str, object] = {'verify': self.s3_verify}
-        if self.s3_endpoint:
-            client_kwargs['endpoint_url'] = self.s3_endpoint
-
         logger.info(
-
             "S3Service: endpoint=%s verify=%s",
             self.s3_endpoint or "<aws-default>",
             self.s3_verify,
         )
-        self.s3_client = self.session.client('s3', **client_kwargs)
+
+        self.s3_client = self.session.client('s3', endpoint_url=self.s3_endpoint, config=modern_config)
         self.settings = get_settings()
 
     @staticmethod

@@ -3,6 +3,7 @@ import sys
 import boto3
 import logging
 
+from botocore.config import Config
 from dotenv import load_dotenv
 
 from LoadConfig import get_settings
@@ -23,11 +24,17 @@ def get_s3_client():
         logger.error("Brak poświadczeń AWS/MinIO w .env")
         sys.exit(1)
 
+    modern_config = Config(
+        request_checksum_calculation='when_required',
+        response_checksum_validation='when_required',
+        s3={'allow_chunked_encoding': False}
+    )
+
     session = boto3.Session(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret, region_name=aws_region)
 
     if s3_endpoint:
         logger.info(f"Łączenie z MinIO: {s3_endpoint}")
-        return session.client('s3', endpoint_url=s3_endpoint)
+        return session.client('s3', endpoint_url=s3_endpoint, config=modern_config)
     else:
         return session.client('s3')
 
