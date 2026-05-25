@@ -103,10 +103,6 @@ class DataLoaderS3Service:
 
         # Get allowed extensions from settings, or set defaults if missing
         allowed_exts = self.settings.get("chunking.allowed_extensions", [])
-        if not allowed_exts:
-            # Added .xsd because they were seen in logs
-            allowed_exts = ['.txt', '.md', '.pdf', '.docx', '.xlsx', '.xsd', '.xml', '.json']
-
         ext_tuple = tuple(allowed_exts)
 
         # Key moment: the Prefix parameter filters files on the AWS side

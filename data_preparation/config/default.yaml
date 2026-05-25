@@ -7,8 +7,8 @@
 # ==============================================================================
 
 # Core Arguments
-source-type: s3
-dest-type: s3
+source-type: local
+dest-type: local
 
 #S3 Arguments
 bucket: mojsuperbucket
@@ -16,8 +16,20 @@ prefix: "business/"
 out-bucket: mojsuperbucket
 
 # Local Arguments
-dir: "/home/blackmain/PycharmProjects/document-to-markdown-pipeline/data_preparation/inputs"
-out-dir: "/home/blackmain/PycharmProjects/document-to-markdown-pipeline/data_preparation/outputs_md"
+dir: "/home/blackmain/PycharmProjects/document-to-markdown-pipeline/data_preparation/inputs/business"
+out-dir: "/home/blackmain/PycharmProjects/document-to-markdown-pipeline/data_preparation/inputs/business"
 
 # Logging Argument
 debug: false
+
+chunking:
+  # ALLOWED_EXTENSIONS
+  allowed_extensions:
+    - ".md"
+    - ".txt"
+    - ".xml"
+    - ".xsd"
+    - ".pdf"
+    - ".docx"
+    - ".xlsx"
+    - ".json"

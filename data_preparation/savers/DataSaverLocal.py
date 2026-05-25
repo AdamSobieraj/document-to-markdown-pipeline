@@ -90,3 +90,25 @@ class LocalDataSaver(BaseDataSaver):
         markdown_rel_path = base_name + ".md"
 
         return os.path.join(self.markdown_directory, markdown_rel_path)
+
+    def _build_metadata_path(self, source_path: str) -> str:
+        """
+        Derives the metadata JSON path from the markdown file path.
+
+        Mirrors Project 1's LocalDataSaver._build_metadata_path() naming:
+            "/data_markdown/HR/document.md"
+         -> "/data_markdown/HR/document_metadata.json"
+
+        Args:
+            file_path: Absolute path to the .md file
+
+        Returns:
+            Absolute path to the associated _metadata.json file
+        """
+        rel_path = os.path.relpath(source_path, self.base_directory)
+        base_name = os.path.splitext(rel_path)[0]
+
+        # Build metadata path: same structure as markdown but with _metadata.json
+        metadata_rel_path = base_name + "_metadata.json"
+
+        return os.path.join(self.markdown_directory, metadata_rel_path)
