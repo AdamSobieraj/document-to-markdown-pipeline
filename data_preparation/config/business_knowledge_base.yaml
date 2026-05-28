@@ -1,6 +1,8 @@
-data_source:
-  type: "s3"
+# Core Arguments
+source-type: s3
+dest-type: s3
 
-data_s3_source:
-  input_path: "business"
-
+#S3 Arguments
+bucket: mojsuperbucket
+prefix: "business/"
+out-bucket: mojsuperbucket
