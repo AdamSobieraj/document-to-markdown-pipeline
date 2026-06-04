@@ -3,9 +3,13 @@
 import os
 import logging
 from pydantic import BaseModel, Field, field_validator
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
+load_dotenv()
 
+valid_extensions_env = os.getenv('VALID_FILE_EXTENSIONS', '')
+VALID_FILE_EXTENSIONS = [ext.strip() for ext in valid_extensions_env.split(',') if ext.strip()]
 
 class FileKeyValidator(BaseModel):
     """Validation model for file keys/paths."""
@@ -35,12 +39,7 @@ class FileKeyValidator(BaseModel):
         # Extract extension and validate
         ext = os.path.splitext(v)[1].lower()
         if ext:
-            valid_extensions = [
-                '.pdf', '.docx', '.doc', '.txt', '.md', '.html', '.htm',
-                '.pptx', '.ppt', '.xlsx', '.xls', '.csv', '.json', '.xml'
-            ]
-
-            if ext not in valid_extensions:
+            if ext not in VALID_FILE_EXTENSIONS:
                 logger.warning(f"File {v} has unusual extension: {ext}")
 
         return v

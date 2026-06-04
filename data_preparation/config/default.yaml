@@ -7,12 +7,12 @@
 # ==============================================================================
 
 # Core Arguments
-source-type: local
-dest-type: local
+source-type: s3
+dest-type: s3
 
 #S3 Arguments
 bucket: mojsuperbucket
-prefix: "business/"
+prefix: "General/"
 out-bucket: mojsuperbucket
 
 # Local Arguments
