@@ -20,7 +20,9 @@ from validators import (
     ConverterConfig,
     ProcessingResult,
     FileKeyValidator,
-    FlexibleMetadata
+    FlexibleMetadata,
+    FileStructureValidator,
+    PreFlightValidationError,
 )
 
 logger = logging.getLogger(__name__)
@@ -145,9 +147,16 @@ class MarkDownConverter:
         all_files = self.get_file_list()
         total_files = len(all_files)
 
+        # 2. PRE-FLIGHT VALIDATION: Check all files before processing
+        logger.info("Running pre-flight file structure validation...")
+        max_size_mb = get_settings().get("chunking.max_file_size_mb", 100)
+        validator = FileStructureValidator(self.loader, max_file_size_mb=max_size_mb)
+        validator.validate_all(all_files)
+        logger.info("Pre-flight validation passed for all %d files.", total_files)
+
         logger.info(f"Found {total_files} files. Starting processing pipeline...")
 
-        # 2. Loop through the list
+        # 3. Loop through the list
         for idx, file_key in enumerate(all_files, 1):
             logger.info(f"Processing file {idx}/{total_files}: {file_key}")
 
@@ -488,6 +497,15 @@ if __name__ == "__main__":
 
         if errors > 0:
             sys.exit(1)
+
+    except PreFlightValidationError as e:
+        logger.error("Pre-flight validation failed:\n%s", e)
+        print(f"\n{'=' * 60}")
+        print(f"PRE-FLIGHT VALIDATION FAILED")
+        print(f"{'=' * 60}")
+        print(e)
+        print(f"{'=' * 60}\n")
+        sys.exit(1)
 
     except Exception as e:
         logger.error(f"Pipeline failed: {e}", exc_info=True)

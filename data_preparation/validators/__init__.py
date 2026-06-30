@@ -10,6 +10,7 @@ from .file_metadata import FileMetadata
 from .converter_config import ConverterConfig
 from .file_key_validator import FileKeyValidator
 from .flexible_metadata import FlexibleMetadata
+from .preflight_validator import FileStructureValidator, PreFlightValidationError
 
 __all__ = [
     "S3Config",
@@ -19,4 +20,6 @@ __all__ = [
     "ConverterConfig",
     "FileKeyValidator",
     "FlexibleMetadata",
+    "FileStructureValidator",
+    "PreFlightValidationError",
 ]

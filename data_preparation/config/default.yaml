@@ -16,8 +16,8 @@ prefix: "General/"
 out-bucket: mojsuperbucket
 
 # Local Arguments
-dir: "/home/blackmain/PycharmProjects/document-to-markdown-pipeline/data_preparation/inputs/business"
-out-dir: "/home/blackmain/PycharmProjects/document-to-markdown-pipeline/data_preparation/inputs/business"
+dir: 'C:\Users\Tor.com\Desktop\PROJEKTY\document-to-markdown-pipeline\data_preparation\inputs\business'
+out-dir: 'C:\Users\Tor.com\Desktop\PROJEKTY\document-to-markdown-pipeline\data_preparation\inputs\business'
 
 # Logging Argument
 debug: false
@@ -33,3 +33,6 @@ chunking:
     - ".docx"
     - ".xlsx"
     - ".json"
+
+  # Maximum file size in megabytes
+  max_file_size_mb: 100

@@ -51,3 +51,26 @@ class S3DataLoader(BaseDataLoader):
         clean_key = file_key.lstrip("/")
         parts = clean_key.split("/")
         return parts[0] if len(parts) > 1 else "general"
+
+    def get_file_size(self, file_key: str) -> int:
+        """Returns file size in bytes via S3 HEAD request."""
+        logger.debug(f"Getting file size from S3: {file_key}")
+        return self.s3_service.get_file_size(self.bucket_name, file_key)
+
+    def load_sample(self, file_key: str, num_bytes: int) -> bytes:
+        """
+        Loads the first num_bytes from an S3 object.
+
+        Uses S3 Range header to download only the requested bytes.
+
+        Args:
+            file_key: S3 object key
+            num_bytes: Number of bytes to read
+
+        Returns:
+            bytes: First num_bytes of the file (fewer if file is smaller)
+        """
+        logger.debug(f"Loading sample ({num_bytes} bytes) from S3: {file_key}")
+        return self.s3_service.download_bytes_range(
+            self.bucket_name, file_key, 0, num_bytes - 1
+        )

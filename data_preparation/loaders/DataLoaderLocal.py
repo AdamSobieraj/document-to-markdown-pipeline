@@ -58,3 +58,21 @@ class LocalDataLoader(BaseDataLoader):
             return parts[0]
 
         return os.path.basename(self.directory) or "local"
+
+    def get_file_size(self, file_path: str) -> int:
+        """Returns file size in bytes."""
+        return os.path.getsize(file_path)
+
+    def load_sample(self, file_path: str, num_bytes: int) -> bytes:
+        """
+        Loads the first num_bytes from a local file.
+
+        Args:
+            file_path: Path to the file
+            num_bytes: Number of bytes to read
+
+        Returns:
+            bytes: First num_bytes of the file (fewer if file is smaller)
+        """
+        with open(file_path, 'rb') as f:
+            return f.read(num_bytes)

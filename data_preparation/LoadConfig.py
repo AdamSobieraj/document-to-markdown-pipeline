@@ -55,7 +55,7 @@ class Config:
         # 1. Determine paths
         base_dir = os.path.dirname(os.path.abspath(__file__))  # business_agent/
         project_root = os.path.dirname(base_dir)  # Project root
-        config_dir = os.path.join(project_root, "data_preparation/config")
+        config_dir = os.path.join(project_root, "data_preparation\config")
 
         # 2. Determine profile
         profile = self._determine_profile()

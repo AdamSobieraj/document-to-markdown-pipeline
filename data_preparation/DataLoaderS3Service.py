@@ -210,6 +210,64 @@ class DataLoaderS3Service:
             logger.error(f"S3 Download Error (Bytes): {e}")
             raise e
 
+    def get_file_size(self, bucket_name: str, key: str) -> int:
+        """
+        Returns file size in bytes using an S3 HEAD request.
+
+        Does NOT download the full file.
+
+        Args:
+            bucket_name: S3 bucket name
+            key: Object key
+
+        Returns:
+            int: File size in bytes
+
+        Raises:
+            botocore.exceptions.ClientError: If the object does not exist
+                or the request fails.
+        """
+        try:
+            response = self.s3_client.head_object(Bucket=bucket_name, Key=key)
+            return response.get("ContentLength", 0)
+        except Exception as e:
+            logger.error("S3Service Error getting size for %s: %s", key, e)
+            raise e
+
+    def download_bytes_range(
+            self,
+            bucket_name: str,
+            object_key: str,
+            start_byte: int,
+            end_byte: int,
+    ) -> bytes:
+        """
+        Downloads a byte range from an S3 object.
+
+        Args:
+            bucket_name: S3 bucket name
+            object_key: Object key
+            start_byte: Start byte (inclusive)
+            end_byte: End byte (inclusive)
+
+        Returns:
+            bytes: The requested byte range
+        """
+        range_header = f"bytes={start_byte}-{end_byte}"
+        try:
+            response = self.s3_client.get_object(
+                Bucket=bucket_name,
+                Key=object_key,
+                Range=range_header,
+            )
+            return response["Body"].read()
+        except Exception as e:
+            logger.error(
+                "S3Service Error downloading bytes range %s [%s-%s]: %s",
+                object_key, start_byte, end_byte, e,
+            )
+            raise e
+
     def upload_bytes(
             self,
             bucket_name: str,
