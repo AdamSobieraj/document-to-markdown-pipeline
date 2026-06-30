@@ -65,3 +65,9 @@ test path
 docker build -t registry.home.arpa/executeit/python-agent-mcp:latest .
 
 docker run registry.home.arpa/executeit/python-agent-mcp
+
+komponenty dod dodania
+
+validacja pliku czy nie uszkodzony (sprawdzić jescze)
+proces konwersji zamienić na asynchroniczny
+

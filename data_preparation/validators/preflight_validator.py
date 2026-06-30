@@ -9,9 +9,42 @@ import logging
 import os
 from typing import List, Tuple
 
+from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
+
+load_dotenv()
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _parse_hex_bytes(raw: str) -> bytes:
+    """Convert a hex string like '504b0304' to bytes."""
+    return bytes.fromhex(raw)
+
+
+def _parse_format_checks(raw: str) -> dict:
+    """
+    Parse FORMAT_CHECKS from env string.
+
+    Format: type=ext1,ext2;type2=ext3,ext4
+    Example: pdf=.pdf;zip=.docx,.xlsx,.pptx;text=.md,.txt,.xml
+    """
+    result: dict[str, str] = {}
+    for part in raw.split(";"):
+        part = part.strip()
+        if "=" not in part:
+            continue
+        fmt_type, exts = part.split("=", 1)
+        fmt_type = fmt_type.strip()
+        for ext in exts.split(","):
+            ext = ext.strip().lower()
+            if ext:
+                result[ext] = fmt_type
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -61,8 +94,7 @@ class FileStructureValidator:
         2. File size is under the configured max (chunking.max_file_size_mb)
         3. Format integrity -- magic bytes / structural check:
            - PDF: starts with %PDF
-           - DOCX/XLSX/PPTX: valid ZIP structure (local directory header
-             + central directory record within first 512 bytes)
+           - DOCX/XLSX/PPTX: valid ZIP structure (local directory header)
            - MD/TXT/XML/XSD/JSON: valid UTF-8 or ASCII text
 
     Behavior:
@@ -76,25 +108,15 @@ class FileStructureValidator:
         - For format checks on S3, downloads only a small sample
     """
 
-    # Magic bytes for format detection
-    PDF_MAGIC = b"%PDF"
-    ZIP_LOCAL_HEADER = b"PK\x03\x04"
+    # Magic bytes for format detection (read from env, fall back to defaults)
+    PDF_MAGIC = os.getenv("PDF_MAGIC", "%PDF").encode("ascii")
+    ZIP_LOCAL_HEADER = _parse_hex_bytes(os.getenv("ZIP_LOCAL_HEADER", "504b0304"))
 
     # Maximum bytes to sample for text validation (practical limit)
-    _TEXT_SAMPLE_MAX = 8192
+    _TEXT_SAMPLE_MAX = int(os.getenv("MAX_TEXT_SAMPLE_BYTES", "8192"))
 
-    # Format -> expected magic bytes / structural checks
-    FORMAT_CHECKS = {
-        ".pdf": "pdf",
-        ".docx": "zip",
-        ".xlsx": "zip",
-        ".pptx": "zip",
-        ".md": "text",
-        ".txt": "text",
-        ".xml": "text",
-        ".xsd": "text",
-        ".json": "text",
-    }
+    # Format -> expected magic bytes / structural checks (read from env)
+    FORMAT_CHECKS = _parse_format_checks(os.getenv("FORMAT_CHECKS", "pdf=.pdf;zip=.docx,.xlsx,.pptx;text=.md,.txt,.xml,.xsd,.json"))
 
     def __init__(self, loader, max_file_size_mb: int = 100):
         """
@@ -140,7 +162,7 @@ class FileStructureValidator:
             issues.extend(self._check_max_size(file_key))
 
         # Check 3: Format integrity
-        format_check = self.FORMAT_CHECKS.get(ext)
+        format_check = str(self.FORMAT_CHECKS.get(ext).__str__())
         if format_check:
             issues.extend(self._check_format(file_key, format_check))
 
