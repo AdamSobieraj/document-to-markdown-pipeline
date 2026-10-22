@@ -24,4 +24,5 @@ services:
 
 volumes:
   minio_data:
+    name: markdown_base_vol
     driver: local
